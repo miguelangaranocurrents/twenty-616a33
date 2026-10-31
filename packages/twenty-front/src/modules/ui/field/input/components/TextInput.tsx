@@ -48,7 +48,7 @@ export type TextInputProps = {
   className?: string;
 };
 
-const getValue = (value: string, shouldTrim: boolean) => {
+const getSubmittedValue = (value: string, shouldTrim: boolean) => {
   if (shouldTrim) {
     return value.trim();
   }
@@ -78,19 +78,21 @@ export const TextInput = ({
   const wrapperRef = useRef<HTMLInputElement>(null);
   const copyRef = useRef<HTMLDivElement>(null);
 
+  // Trimming happens on submit only: trimming while typing would drop spaces
+  // as soon as they are typed.
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setInternalText(getValue(event.target.value, shouldTrim));
-    onChange?.(getValue(event.target.value, shouldTrim));
+    setInternalText(event.target.value);
+    onChange?.(event.target.value);
   };
   useEffect(() => {
-    setInternalText(getValue(value, shouldTrim));
-  }, [value, shouldTrim]);
+    setInternalText(value);
+  }, [value]);
 
   useRegisterInputEvents({
     focusId: instanceId,
     inputRef: wrapperRef,
     copyRef: copyRef,
-    inputValue: internalText,
+    inputValue: getSubmittedValue(internalText, shouldTrim),
     onEnter,
     onEscape,
     onClickOutside,
